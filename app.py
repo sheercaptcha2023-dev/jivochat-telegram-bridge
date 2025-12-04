@@ -23,7 +23,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '-5069187781')
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
 # События, о которых отправлять уведомления
-EVENTS_TO_NOTIFY = ['chat_finished', 'offline_message', 'chat_accepted', 'chat_updated']
+EVENTS_TO_NOTIFY = ['chat_started', 'chat_finished', 'offline_message', 'chat_accepted', 'chat_updated']
 
 
 def send_telegram_message(text, parse_mode="HTML", reply_markup=None):
@@ -123,6 +123,23 @@ def format_chat_accepted(data):
     return message
 
 
+def format_chat_started(data):
+    """Форматирование начала нового чата"""
+    visitor = data.get("visitor", {})
+    
+    message = f"""
+🔔 <b>Новый чат начат!</b>
+
+👤 <b>Клиент:</b> {visitor.get('name', 'Не указано')}
+📧 <b>Email:</b> {visitor.get('email', 'Не указан')}
+📱 <b>Телефон:</b> {visitor.get('phone', 'Не указан')}
+🌐 <b>Страница:</b> {visitor.get('url', 'Не указана')}
+
+⏰ <b>Ожидает ответа оператора...</b>
+"""
+    return message
+
+
 def format_chat_updated(data):
     """Форматирование обновления информации о чате"""
     visitor = data.get("visitor", {})
@@ -158,7 +175,10 @@ def jivochat_webhook():
         # Формируем сообщение в зависимости от типа события
         message = None
         
-        if event_name == "chat_finished":
+        if event_name == "chat_started":
+            message = format_chat_started(data)
+            
+        elif event_name == "chat_finished":
             message = format_chat_finished(data)
             
         elif event_name == "offline_message":
