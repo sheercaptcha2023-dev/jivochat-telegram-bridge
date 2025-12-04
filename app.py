@@ -23,7 +23,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '-5069187781')
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
 # События, о которых отправлять уведомления
-EVENTS_TO_NOTIFY = ['chat_started', 'chat_finished', 'offline_message', 'chat_accepted', 'chat_updated']
+EVENTS_TO_NOTIFY = ['chat_started', 'client_updated', 'chat_finished', 'offline_message', 'chat_accepted', 'chat_updated']
 
 
 def send_telegram_message(text, parse_mode="HTML", reply_markup=None):
@@ -175,7 +175,8 @@ def jivochat_webhook():
         # Формируем сообщение в зависимости от типа события
         message = None
         
-        if event_name == "chat_started":
+        if event_name == "chat_started" or event_name == "client_updated":
+            # JivoChat может отправлять как chat_started, так и client_updated
             message = format_chat_started(data)
             
         elif event_name == "chat_finished":
